@@ -113,36 +113,37 @@ $app->post('/update-producto/:id', function($id) use($db, $app){
 
 //SUBIR UNA IMAGEN A UN PRODUCTO
 $app->post('/upload-file', function() use($db, $app){
-  $result = array(
-    'status' => 'Error',
-    'code' => 404,
-    'message' => 'No se subio el archivo'
-  );
+	$result = array(
+		'status' 	=> 'error',
+		'code'		=> 404,
+		'message' 	=> 'El archivo no ha podido subirse'
+	);
 
-  if(isset($_FILES['uploads'])){
-    $piramideUploader = new PiramideUploader();
+	if(isset($_FILES['uploads'])){
+		$piramideUploader = new PiramideUploader();
+		$upload = $piramideUploader->upload('image', 'uploads', 'Uploads', array('image/jpeg', 'image/png', 'image/gif'));
+		$file = $piramideUploader->getInfoFile();
+		$file_name = $file['complete_name'];
 
-    $upload = $piramideUploader->upload('image', 'uploads', 'Uploads', array('image/jpeg', 'image/png', 'image/gif'));
-    $file = $piramideUploader->getinfoFile();
-    $file_name = $file['complete_name'];
-    var_dump($file);
-    if(isset($upload) && $upload["uploaded" == false]){
-      $result = array(
-        'status' => 'Error',
-        'code' => 404,
-        'message' => 'No se subio el archivo'
-      );
-    }else{
-      $result = array(
-        'status' => 'SUCCESS',
-        'code' => 200,
-        'message' => 'Se subio el archivo correctamente'
-      );
-    }
-  }
+		if(isset($upload) && $upload["uploaded"] == false){
+			$result = array(
+				'status' 	=> 'error',
+				'code'		=> 404,
+				'message' 	=> 'El archivo no ha podido subirse',
+				'state'		=> $upload,
+				'file_name'	=> $file
+			);
+		}else{
+			$result = array(
+				'status' 	=> 'success',
+				'code'		=> 200,
+				'message' 	=> 'El archivo se ha subido',
+				'filename'  => $file_name
+			);
+		}
+	}
 
-  echo json_encode($result);
-
+	echo json_encode($result);
 });
 //GUARDAR PRODUCTOS
 $app->post('/productos', function() use($app, $db){
